@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ui de login</title>
+</head>
+<body>
+<form action="">
+    <table>
+        <tr>
+            <td>Ip do servidor:</td>
+            <td>
+                <input type="text" name="ip">
+            </td>
+        </tr>
+        <tr>
+            <td>Seu nick:</td>
+            <td>
+                <input type="text" name="nick">
+            </td>
+        </tr>
+       <!--- <tr>
+            <td>Intro:</td>
+            <td>
+                <textarea name="desc" cols="30" rows="5"></textarea>
+            </td>
+        </tr>
+       -->
+    </table>
+</form>
+<button id="btn1">Enviar</button>
+<script type="text/tiscript">
+    $(#btn1).on("click", function() { //Quando clicar no botao
+    // Pegar o valor da caixa de texto
+        var nick = $(input[name='nick']).value.trim();
+        if(nick.length == 0) { // se estiver vazio
+        //Popup aviso
+            view.msgbox(#warning, "O nome de usuário não pode ser vazio");
+            return false;
+        }else if(nick.indexOf('/') > 1) {
+            view.msgbox(#warning, "O nome de usuário não pode conter /");
+        }
+ 
+ // Pegar valor
+        var ip = $(input[name='ip']).value.trim();
+        if(ip.length == 0) {
+        //Popup aviso
+            view.msgbox(#warning, "Digite um ip");
+            return false;
+        }
+ 
+        //获取简介
+        // var desc = $(textarea[name='desc']).value.trim(); -->
+ 
+        //表单数据
+        var formData = {
+            "nick": nick,
+            "ip": ip
+            //"desc":desc,
+        };
+ 
+        //我们把从表单中的数据获取，并转成json字符串
+        //调用go中定义的函数reg，这样go中就可以获取到ui中的数据了。
+        view.entrar(JSON.stringify(formData));
+        window.location = "lobby.html";
+    });
+</script>
+</body>
+</html>
