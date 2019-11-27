@@ -20,7 +20,7 @@ func sendChat(jgdr *Jogador, enviador string, tex []string) {
 	for i := 0; i < len(tex); i++ {
 		enviar = enviar + " " + tex[i]
 	}
-	jgdr.tcp_conn.Send("/chat " + enviador + enviar)
+	jgdr.tcp_conn.Send("/chat " + enviador + enviar + "\n")
 }
 
 func main() {
@@ -42,6 +42,7 @@ func main() {
 	})
 
 	server.OnNewMessage(func(c *tcp_server.Client, message string) {
+		log.Println("Recebido mensagem: " + message)
 		texto := strings.Split(message, " ")
 		jgdrAtual := jgdsConectados[c] // Jogador que falou
 		//recebe nick, a primeira coisa, na tela de login
@@ -73,7 +74,8 @@ func main() {
 				}
 			}
 		} else if texto[0] == "/jogar" {
-			msg := []string{"Indo ao jogo, aguarde"}
+			log.Println("Recebido pedido de jogo")
+			msg := []string{"Esperando oponente, aguarde."}
 			sendChat(jgdrAtual, "/server", msg)
 			paraSalaJogos <- jgdrAtual
 		}
