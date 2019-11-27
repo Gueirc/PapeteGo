@@ -10,6 +10,9 @@ import (
 	"github.com/sciter-sdk/go-sciter/window"
 )
 
+var chJogo = make(chan string)
+var conn net.Conn
+
 func defFunc(w *window.Window) {
 	// crarr função dump para imprimir dados
 	w.DefineFunction("dump", func(args ...*sciter.Value) *sciter.Value {
@@ -19,62 +22,86 @@ func defFunc(w *window.Window) {
 		fmt.Println()
 		return sciter.NullValue()
 	})
-	//Função reg para registar, lógica disso
-	w.DefineFunction("entrar", func(args ...*sciter.Value) *sciter.Value {
-		var entrada string
-		for _, v := range args {
-			//fmt.Print(v.String() + " ")
-			entrada = v.String()
-		}
-		if strings.Contains(entrada, "/") != true {
-			dados := strings.Split(entrada, ",")      // separa entre nick e ip
-			nick := strings.Split(dados[0], ":")[1]   // pega o nick
-			nick = strings.ReplaceAll(nick, "\"", "") // tira o "
-			ip := strings.Split(dados[1], ":")[1]
-			ip = strings.TrimSuffix(ip, "}")
-			ip = strings.ReplaceAll(ip, "\"", "")
-			go conectServer(ip, nick)
-		}
+	//Função pra pegar coisas
+	w.DefineFunction("toGo", func(args ...*sciter.Value) *sciter.Value {
+		switch args[0].String() {
+		case "login":
+			defer func() {
+			}()
+			entrada := args[1].String() // formulário
+			fncErr := args[2]           // função callback erro
+			fncCon := args[3]           // função callback fomos conectados
+			//fncLobby := args[3]
+			//fncLogin := args[4]
+			if r := recover(); r != nil {
+				fmt.Println("Recuperado: ", r) // se a conexão der errado
+				fncErr.Invoke(sciter.NullValue(), "[Native Script]",
+					sciter.NewValue("Não foi possível conectar-se ao servidor."))
+			}
+			if strings.Contains(entrada, "/") != true {
+				dados := strings.Split(entrada, ",")      // separa entre nick e ip
+				nick := strings.Split(dados[0], ":")[1]   // pega o nick
+				nick = strings.ReplaceAll(nick, "\"", "") // tira o "
+				ip := strings.Split(dados[1], ":")[1]
+				ip = strings.TrimSuffix(ip, "}")
+				ip = strings.ReplaceAll(ip, "\"", "")
 
+				ligarNoServer(ip, nick) // panico lá em cima
+				fncCon.Invoke(sciter.NullValue(), "[Native Script]")
+
+			} else {
+				fncErr.Invoke(sciter.NullValue(), "[Native Script]",
+					sciter.NewValue("Digite um nome de usuário válido"))
+			}
+
+		case "aoJogo":
+			chJogo <- "aoJogo"
+		}
 		return sciter.NullValue()
 	})
+
 }
 
 func main() {
 	// Janela
 	w, err := window.New(sciter.DefaultWindowCreateFlag, &sciter.Rect{
-		0, 0, 300, 120})
+		0, 0, 0, 0})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Criar janela erro: ", err)
 	}
-	w.LoadFile("ui.html")
-	w.SetTitle("Papete Login")
+	go aoJogo(chJogo)
+	w.LoadFile("/home/cire/PapeteGo/src/PapeteGo/cliente/main.htm")
+	w.SetTitle("Login")
 	defFunc(w)
 	w.Show()
 	w.Run()
 }
 
-func conectServer(ip, nick string) {
+func ligarNoServer(ip string, nick string) {
 	endr := ip + ":4243"
 	conn, err := net.Dial("tcp", endr)
 	if err != nil {
 		//falar pro usuario que nao deu
-		log.Panic("Erro na conexão")
+		log.Panic("Erro na conexão: ", err) //vai pro recover lá
+
 	}
-	defer conn.Close()
 	msg := "/nick " + nick + "\n"
 	conn.Write([]byte(msg))
-	w, err := window.New(
-		sciter.DefaultWindowCreateFlag, sciter.DefaultRect)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Vamo la")
-	w.LoadFile("lobby.html")
-	w.SetTitle("Papete")
-	w.Show()
-	w.Run()
+
+	log.Println("Conectado")
+}
+func aoJogo(canal chan string) {
 	for {
+		pedido := <-canal
+		if pedido == "aoJogo" {
+			log.Println("Clico em jogar")
+			sendJogar()
+		}
+
 	}
+
+}
+
+func sendJogar() {
 
 }

@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <title>LOGIN</title>
+        <style>
+html 
+{ 
+    font:system;
+    width:max-content;
+    height:max-content;
+    overflow:visible;
+    background:window;
+}
+
+        </style>
+        <script type="text/tiscript">
+            function self.ready() {
+                view.isResizeable = false;
+                view.move(500px,250px,310px,130px);
+            }
+            $(#btn1).on("click", function() { //Quando clicar no botao
+        var nick = $(input[name='nick']).value.trim();
+        if(nick.length == 0) {
+            view.msgbox(#warning, "O nome de usuário não pode ser vazio");
+            return false;
+        }
+        var ip = $(input[name='ip']).value.trim();
+        if(ip.length == 0) {
+            view.msgbox(#warning, "Digite um ip");
+            return false;
+        }
+        var formData = {
+            "nick": nick,
+            "ip": ip
+        };
+        //primeiro parametro a forma, segundo o callback
+        view.toGo("login", JSON.stringify(formData), callbackErr, callbackCon);
+    });
+        //const DEFAULT_WIDTH = 360dip;
+        //var (sx,sy,sw,sh) = View.screenBox(0,#workarea,#rectw);
+        //var w = self.toPixels(DEFAULT_WIDTH, #width);
+        //var h = self.intrinsicHeight(w);
+        //view.move( sx + (sw - w) / 2, sy + (sh - h) / 2, w,h, true );
+
+            function callbackErr(erro) {
+                view.msgbox(#warning, erro);
+          }
+        </script>
+    </head>
+    <body>
+        <form action="">
+            <table>
+                <tr>
+                    <td>Ip do servidor:</td>
+                    <td>
+                        <input type="text" name="ip">
+                    </td>
+                </tr>
+                <tr>
+                    <td>Seu nick:</td>
+                    <td>
+                        <input type="text" name="nick">
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <button id="btn1">Enviar</button>
+    </body>
+</html>

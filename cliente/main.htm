@@ -1,0 +1,45 @@
+<html>
+    <head>
+<style>
+html 
+{ 
+    font:system;
+    width:max-content;
+    height:max-content;
+    overflow:visible;
+    background:window;
+}
+</style>
+
+        <script type="text/tiscript">
+        var nick
+        var logado = false;
+        function callbackCon(){
+        if (logado != true){
+            logado = true
+            view.msgbox(#information, "Você foi Conectado");
+            $(#content_page).load("/home/cire/PapeteGo/src/PapeteGo/cliente/lobby.htm");
+            //view.windowState = View.WINDOW_HIDDEN
+            //view.close()
+            //view.window {
+            //  url: self.url("lobby.htm"), 
+            //  type: View.FRAME_WINDOW,
+            //  state: View.WINDOW_SHOWN, // mudar pra hidden esconde
+            //  client: true,
+            //  alignment:5,
+            //  width: 800,
+            //  height: 600
+            //};
+
+            }else{
+            view.msgbox(#warning, "Já Conectado");
+            }
+            }
+        </script>
+
+    </head>
+    <body>
+        <frame id="content_page" src="login.htm" name="content_page" />
+    </body>
+</html>
+

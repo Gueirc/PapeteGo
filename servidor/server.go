@@ -46,7 +46,6 @@ func main() {
 		jgdrAtual := jgdsConectados[c] // Jogador que falou
 		//recebe nick, a primeira coisa, na tela de login
 		if jgdrAtual.temNome != true {
-			//tratar nome?
 			if texto[0] == "/nick" {
 				// tira o /n do final do nome
 				texto[1] = strings.TrimSuffix(texto[1], "\n")
@@ -57,7 +56,7 @@ func main() {
 				c.Close()
 			}
 		} else if jgdrAtual.emJogo {
-			jgdrAtual.chatJogo <- message
+			jgdrAtual.chatJogo <- message // manda pro chat do jogo
 		} else if texto[0] == "/falar" { // se tiver falado pra todo mundo
 			//tratar fala indevida?
 			for client, jgdr := range jgdsConectados {
