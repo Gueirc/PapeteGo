@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"net"
@@ -11,33 +12,34 @@ import (
 )
 
 var chJogo = make(chan string)
+var fncBack = make(chan *sciter.Value)
 var conn net.Conn
 
 func defFunc(w *window.Window) {
 	// crarr função dump para imprimir dados
-	w.DefineFunction("dump", func(args ...*sciter.Value) *sciter.Value {
-		for _, v := range args {
-			fmt.Print(v.String() + " ")
-		}
-		fmt.Println()
-		return sciter.NullValue()
-	})
+	//w.DefineFunction("dump", func(args ...*sciter.Value) *sciter.Value {
+	//	for _, v := range args {
+	//		fmt.Print(v.String() + " ")
+	//	}
+	//	fmt.Println()
+	//	return sciter.NullValue()
+	//})
 	//Função pra pegar coisas
 	w.DefineFunction("toGo", func(args ...*sciter.Value) *sciter.Value {
+		//fncLobby := args[3]
+		//fncLogin := args[4]
 		switch args[0].String() {
 		case "login":
-			defer func() {
-			}()
 			entrada := args[1].String() // formulário
 			fncErr := args[2]           // função callback erro
 			fncCon := args[3]           // função callback fomos conectados
-			//fncLobby := args[3]
-			//fncLogin := args[4]
-			if r := recover(); r != nil {
-				fmt.Println("Recuperado: ", r) // se a conexão der errado
-				fncErr.Invoke(sciter.NullValue(), "[Native Script]",
-					sciter.NewValue("Não foi possível conectar-se ao servidor."))
-			}
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Println("Recuperado: ", r) // se a conexão der errado
+					fncErr.Invoke(sciter.NullValue(), "[Native Script]",
+						sciter.NewValue("Não foi possível conectar-se ao servidor, verifique o ip do servidor."))
+				}
+			}()
 			if strings.Contains(entrada, "/") != true {
 				dados := strings.Split(entrada, ",")      // separa entre nick e ip
 				nick := strings.Split(dados[0], ":")[1]   // pega o nick
@@ -64,22 +66,24 @@ func defFunc(w *window.Window) {
 
 func main() {
 	// Janela
+	// mudar para que não seja resizeable
 	w, err := window.New(sciter.DefaultWindowCreateFlag, &sciter.Rect{
 		0, 0, 0, 0})
 	if err != nil {
 		log.Fatal("Criar janela erro: ", err)
 	}
-	go aoJogo(chJogo)
-	w.LoadFile("/home/cire/PapeteGo/src/PapeteGo/cliente/main.htm")
+	w.LoadFile("/home/cire/PapeteGo/src/github.com/Gueirc/PapeteGo/cliente/main.htm")
 	w.SetTitle("Login")
 	defFunc(w)
+	go handlerCon(chJogo, w)
 	w.Show()
 	w.Run()
 }
 
 func ligarNoServer(ip string, nick string) {
 	endr := ip + ":4243"
-	conn, err := net.Dial("tcp", endr)
+	var err error
+	conn, err = net.Dial("tcp", endr)
 	if err != nil {
 		//falar pro usuario que nao deu
 		log.Panic("Erro na conexão: ", err) //vai pro recover lá
@@ -88,14 +92,50 @@ func ligarNoServer(ip string, nick string) {
 	msg := "/nick " + nick + "\n"
 	conn.Write([]byte(msg))
 
-	log.Println("Conectado")
+	msgr, _ := bufio.NewReader(conn).ReadString('\n')
+	log.Println(msgr)
 }
-func aoJogo(canal chan string) {
-	for {
-		pedido := <-canal
-		if pedido == "aoJogo" {
-			log.Println("Clico em jogar")
-			sendJogar()
+func handlerCon(canal chan string, w *window.Window) {
+	root, err := w.GetRootElement()
+	if err != nil {
+		log.Fatal("get root element failed: ", err.Error())
+	}
+	pedido := <-canal
+	if pedido == "aoJogo" {
+		log.Println("Clico em jogar")
+		sendJogar()
+		for {
+			log.Println("Esperando")
+			msg, _ := bufio.NewReader(conn).ReadString('\n')
+			textoDiv := strings.Split(msg, " ")
+			log.Println(msg)
+			switch textoDiv[1] {
+			case "/server":
+				//Ignora o /chat e o enviador
+				texto := strings.Join(textoDiv[2:], " ")
+				retorno, err := root.CallMethod("salaDeEspera",
+					sciter.NewValue(texto))
+				if err != nil {
+					log.Println("method call failed,", err)
+				} else {
+					log.Println("method call successfulyy ", retorno)
+				}
+			case "/serverJogo":
+				switch textoDiv[2] {
+				case "/oponente":
+					oponente := textoDiv[3] // nome do oponente
+					log.Println(oponente)
+					log.Println(textoDiv)
+					retorno, err := root.CallMethod("startJogo",
+						sciter.NewValue(oponente))
+					if err != nil {
+						log.Println("method call startJogo  failed,", err)
+					} else {
+						log.Println("method call startJogo successfulyy ", retorno)
+					}
+				}
+
+			}
 		}
 
 	}
@@ -103,5 +143,5 @@ func aoJogo(canal chan string) {
 }
 
 func sendJogar() {
-
+	conn.Write([]byte("/jogar X \n"))
 }

@@ -66,14 +66,31 @@ textarea{
 }
         </style>
         <script type="text/tiscript">
+            var requisitou = false;
             function self.ready() {
             view.isResizeable = false;
             view.windowCaption = "PaPeTe";
               view.move(500px,250px,500px,400px);
               }
             $(#btnJogar).on("click", function() { //Quando clicar no botao
-                view.toGo("aoJogo", callbackNoJogo);
+            if (requisitou != true){
+                requisitou = true
+                view.toGo("aoJogo");
+                }else{
+            view.msgbox(#information, "Você já está aguardando um oponente");
+                }
             });
+            function mudarCaixaTexto(msg){
+            var texto = self#info;
+            texto.value = msg;
+            }
+            var root = view.root
+            root.salaDeEspera = function(msg){
+            mudarCaixaTexto(msg)
+            }
+            root.startJogo = function(opon){
+               mudarCaixaTexto(opon)
+            }
         </script>
     </head>
 
@@ -84,6 +101,7 @@ textarea{
 
         <textarea readonly id="info"> Clique em jogar para jogar
         </textarea>
+
 
         <button id="btnJogar">Jogar</button>
     </div>
