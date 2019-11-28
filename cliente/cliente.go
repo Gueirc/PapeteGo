@@ -28,6 +28,7 @@ func defFunc(w *window.Window) {
 	w.DefineFunction("toGo", func(args ...*sciter.Value) *sciter.Value {
 		//fncLobby := args[3]
 		//fncLogin := args[4]
+		log.Println(args[0].String())
 		switch args[0].String() {
 		case "login":
 			entrada := args[1].String() // formulário
@@ -58,6 +59,14 @@ func defFunc(w *window.Window) {
 
 		case "aoJogo":
 			chJogo <- "aoJogo"
+		case "papel":
+			sendPapel()
+		case "pedra":
+			sendPedra()
+		case "tesoura":
+			sendTesoura()
+		case "fechar":
+			sendSair()
 		}
 		return sciter.NullValue()
 	})
@@ -100,41 +109,65 @@ func handlerCon(canal chan string, w *window.Window) {
 	if err != nil {
 		log.Fatal("get root element failed: ", err.Error())
 	}
-	pedido := <-canal
-	if pedido == "aoJogo" {
-		log.Println("Clico em jogar")
-		sendJogar()
-		for {
-			log.Println("Esperando")
-			msg, _ := bufio.NewReader(conn).ReadString('\n')
-			textoDiv := strings.Split(msg, " ")
-			log.Println(msg)
-			switch textoDiv[1] {
-			case "/server":
-				//Ignora o /chat e o enviador
-				texto := strings.Join(textoDiv[2:], " ")
-				retorno, err := root.CallMethod("salaDeEspera",
-					sciter.NewValue(texto))
-				if err != nil {
-					log.Println("method call failed,", err)
-				} else {
-					log.Println("method call successfulyy ", retorno)
+	for {
+		voltou := false
+		pedido := <-canal
+		if pedido == "aoJogo" {
+			log.Println("Clico em jogar")
+			sendJogar()
+			for {
+				if voltou == true {
+					break
 				}
-			case "/serverJogo":
-				switch textoDiv[2] {
-				case "/oponente":
-					oponente := textoDiv[3] // nome do oponente
-					log.Println(oponente)
-					log.Println(textoDiv)
-					retorno, err := root.CallMethod("startJogo",
-						sciter.NewValue(oponente))
-					if err != nil {
-						log.Println("method call startJogo  failed,", err)
-					} else {
-						log.Println("method call startJogo successfulyy ", retorno)
-					}
-				}
+				log.Println("Esperando")
+				msg, _ := bufio.NewReader(conn).ReadString('\n')
+				textoDiv := strings.Split(msg, " ")
+				log.Println(msg)
+				switch textoDiv[1] {
+				case "/server":
+					//Ignora o /chat e o enviador
+					texto := strings.Join(textoDiv[2:], " ")
+					root.CallMethod("mensagem", sciter.NewValue(texto))
+				case "/serverJogo":
+					switch textoDiv[2] {
+					case "/oponente":
+						oponente := textoDiv[4] // nome do oponente
+						log.Println("	" + oponente)
+						msg := "Seu oponente é: " + oponente
+						retorno, err := root.CallMethod("startJogo",
+							sciter.NewValue(msg))
+						if err != nil {
+							log.Println("method call startJogo  failed,", err)
+						} else {
+							log.Println("method call startJogo successfulyy ", retorno)
+						}
+					case "/quitou":
+						retorno, err := root.CallMethod("voltarLobby",
+							sciter.NewValue("Seu oponente saiu."))
+						if err != nil {
+							log.Panic("method call voltarLobby failed,", err)
+						} else {
+							log.Println("method call voltarLobby successfulyy ", retorno)
+							voltou = true
+						}
+					case "/escolhido":
+						root.CallMethod("mensagem",
+							sciter.NewValue("Você escolheu..."))
 
+					case "/oescolhido":
+						root.CallMethod("mensagem",
+							sciter.NewValue("Seu oponente escolheu..."))
+
+					case "/resultado":
+						if textoDiv[5] == "/ganhou" {
+						} else if textoDiv[5] == "/perdeu" {
+
+						} else if textoDiv[5] == "/empatou" {
+
+						}
+					}
+
+				}
 			}
 		}
 
@@ -144,4 +177,16 @@ func handlerCon(canal chan string, w *window.Window) {
 
 func sendJogar() {
 	conn.Write([]byte("/jogar X \n"))
+}
+func sendSair() {
+	conn.Close()
+}
+func sendPapel() {
+	conn.Write([]byte("/jogar /papel X \n"))
+}
+func sendPedra() {
+	conn.Write([]byte("/jogar /pedra X \n"))
+}
+func sendTesoura() {
+	conn.Write([]byte("/jogar /tesoura X \n"))
 }
