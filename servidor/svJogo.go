@@ -15,16 +15,22 @@ const (
 func salaJogos(jgdEntrou chan *Jogador) {
 
 	var jgdrEsperando *Jogador
-	var emEspera int = 0
 	for {
-		nJgdr := <-jgdEntrou
-
-		if emEspera > 0 {
-			go oJogo(nJgdr, jgdrEsperando)
-			emEspera--
-		} else {
-			jgdrEsperando = nJgdr
-			emEspera++
+		jgdrEsperando = <-jgdEntrou
+		pronto := false
+		for {
+			if pronto {
+				break
+			}
+			select {
+			case nJgdr := <-jgdEntrou:
+				go oJogo(nJgdr, jgdrEsperando)
+				pronto = true
+			case msg := <-jgdrEsperando.chatJogo:
+				if msg == "/quitei" {
+					pronto = true
+				}
+			}
 		}
 	}
 }
@@ -72,47 +78,63 @@ func oJogo(jgd1, jgd2 *Jogador) {
 			if err != 0 {
 				log.Panic("Carta invalida") // pega isso devolta la no main
 			}
-			if cGanhou == jgd1Escolha {
+			if cGanhou == jgd1Escolha { // fazer um sendResult pra isso
+				msge1 := []string{"/resultado ", ctos(jgd1Escolha) + " ", ctos(jgd2Escolha), "/ganhou"}
+				go sendChat(jgd1, "/serverJogo", msge1)
+				msge2 := []string{"/resultado ", ctos(jgd2Escolha) + " ", ctos(jgd1Escolha), "/perdeu"}
+				go sendChat(jgd2, "/serverJogo", msge2)
 				// salvar no arquivo, estrelas
 			} else if cGanhou == jgd2Escolha {
+				msge1 := []string{"/resultado ", ctos(jgd1Escolha) + " ", ctos(jgd2Escolha), "/perdeu"}
+				go sendChat(jgd1, "/serverJogo", msge1)
+				msge2 := []string{"/resultado ", ctos(jgd2Escolha) + " ", ctos(jgd1Escolha), "/ganhou"}
+				go sendChat(jgd2, "/serverJogo", msge2)
 
 			} else {
+				msge1 := []string{"/resultado ", ctos(jgd1Escolha) + " ", ctos(jgd2Escolha), "/empatou"}
+				go sendChat(jgd1, "/serverJogo", msge1)
+				msge2 := []string{"/resultado ", ctos(jgd2Escolha) + " ", ctos(jgd1Escolha), "/empatou"}
+				go sendChat(jgd2, "/serverJogo", msge2)
 
 			}
 
-			msge := []string{"/resultado ", ctos(jgd2Escolha) + " ", jgd2.nome}
-			go sendChat(jgd1, "/serverJogo", msge)
-			msge = []string{"/resultado ", ctos(jgd1Escolha) + " ", jgd1.nome}
-			go sendChat(jgd2, "/serverJogo", msge)
-			break
+			return
 		} else {
 			select {
 			case msg := <-jgd1.chatJogo:
 				texto := strings.Split(msg, " ")
-				if texto[0] != "/falar" {
-					jgd1Escolha = stoc(texto[0])
+				if texto[0] == "/jogar" {
+					jgd1Escolha = stoc(texto[1])
 					if jgd1Escolha == nada {
 						log.Panic("Suposto receber uma carta")
 					}
 					jgd1Pronto = true
-					go sendChat(jgd1, "/serverJogo", []string{"/escolhido"})
-				} else {
-					go sendChat(jgd1, jgd1.nome, texto[1:len(texto)])
-					go sendChat(jgd2, jgd1.nome, texto[1:len(texto)])
+					sendChat(jgd1, "/serverJogo", []string{"/escolhido "})
+					sendChat(jgd2, "/serverJogo", []string{"/oescolhido "})
+				} else if texto[0] == "/falar" {
+					sendChat(jgd1, jgd1.nome, texto[1:len(texto)])
+					sendChat(jgd2, jgd1.nome, texto[1:len(texto)])
+				} else if texto[0] == "/quitei" {
+					go sendChat(jgd2, "/serverJogo", []string{"/quitou " + jgd1.nome})
+					return
 				}
 			case msg := <-jgd2.chatJogo:
 				texto := strings.Split(msg, " ")
-				if texto[0] != "/falar" {
-					jgd2Escolha = stoc(texto[0])
+				if texto[0] == "/jogar" {
+					log.Println("opa")
+					jgd2Escolha = stoc(texto[1])
 					if jgd2Escolha == nada {
 						log.Panic("Suposto receber uma carta")
 					}
 					jgd2Pronto = true
-					go sendChat(jgd2, "/serverJogo", []string{"/escolhido"})
-				} else {
-					go sendChat(jgd1, jgd2.nome, texto[1:len(texto)])
+					sendChat(jgd2, "/serverJogo", []string{"/escolhido "})
+					sendChat(jgd1, "/serverJogo", []string{"/oescolhido "})
+				} else if texto[0] == "/falar" {
 					go sendChat(jgd2, jgd2.nome, texto[1:len(texto)])
-
+					go sendChat(jgd1, jgd2.nome, texto[1:len(texto)])
+				} else if texto[0] == "/quitei" {
+					go sendChat(jgd1, "/serverJogo", []string{"/quitou " + jgd2.nome})
+					return
 				}
 
 			}

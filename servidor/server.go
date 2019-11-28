@@ -36,7 +36,7 @@ func main() {
 		// Cliente conectado
 		c.Send("Conectado\n")
 		log.Println("Novo cliente conectado")
-		nJgd := &Jogador{"", false, false, make(chan string), c}
+		nJgd := &Jogador{"", false, false, make(chan string, 1), c}
 		jgdsConectados[c] = nJgd
 
 	})
@@ -66,10 +66,10 @@ func main() {
 					if client == c {
 						// mandar coisas de depois do /falar até o final
 						// jgdr == jgdrAtual
-						sendChat(jgdr, jgdrAtual.nome, texto[1:len(texto)])
+						go sendChat(jgdr, jgdrAtual.nome, texto[1:len(texto)])
 					} else {
 						// mandar pras outras pessoas
-						sendChat(jgdr, jgdrAtual.nome, texto[1:len(texto)])
+						go sendChat(jgdr, jgdrAtual.nome, texto[1:len(texto)])
 					}
 				}
 			}
@@ -82,6 +82,8 @@ func main() {
 	})
 	server.OnClientConnectionClosed(func(c *tcp_server.Client, err error) {
 		log.Println("Cliente Desconectado", err)
+		jgdr := jgdsConectados[c]
+		jgdr.chatJogo <- "/quitei"
 		delete(jgdsConectados, c)
 
 	})
