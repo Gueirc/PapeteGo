@@ -1,0 +1,23 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script type="text/tiscript">
+
+            $(#btnJogar).on("click", function() { //Quando clicar no botao
+            if (requisitou != true){
+                requisitou = true
+                view.toGo("aoJogo");
+                }else{
+            view.msgbox(#information, "Você já está aguardando um oponente");
+                }
+            });
+            $(#btnSair).on("click", function() { 
+                view.toGo("fechar");
+            });
+    </script>
+    </head>
+    <body>
+        <button id="btnJogar">Jogar</button>
+        <button id="btnSair">Sair</button>
+    </body>
+</html>

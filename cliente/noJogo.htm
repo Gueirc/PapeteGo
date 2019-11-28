@@ -1,0 +1,42 @@
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css">
+<script type="text/tiscript">
+    event click $(#btnPapel) {
+    view.toGo("papel");
+      //if(var element = self.select("#btnPapel"))
+      if(var element = self.select("#btnPedra"))
+         element.attributes["style"] = "opacity: 0.6;";
+      if(var element = self.select("#btnTesoura"))
+         element.attributes["style"] = "opacity: 0.6;";
+         }
+    event click $(#btnPedra) {
+    view.toGo("pedra");
+      if(var element = self.select("#btnPapel"))
+         element.attributes["style"] = "opacity: 0.6;";
+      //if(var element = self.select("#btnPedra"))
+      if(var element = self.select("#btnTesoura"))
+         element.attributes["style"] = "opacity: 0.6;";
+         }
+    event click $(#btnTesoura) {
+    view.toGo("tesoura");
+      if(var element = self.select("#btnPapel"))
+         element.attributes["style"] = "opacity: 0.6;";
+      if(var element = self.select("#btnPedra"))
+         element.attributes["style"] = "opacity: 0.6;";
+      //if(var element = self.select("#btnTesoura"))
+         }
+</script>
+    </head>
+    <body>
+        <div#bts>
+            <button class="btnEscolha"id="btnPapel"> Papel </button>
+            <button class="btnEscolha"id="btnPedra"> Pedra </button>
+            <button class="btnEscolha"id="btnTesoura"> Tesoura </button>
+        </div>
+        <button id="btnJogar" .disabled disabled>Jogar</button>
+
+        <button id="btnSair" .disabled disabled>Sair</button>
+    </body>
+</html>

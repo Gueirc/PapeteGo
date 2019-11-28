@@ -1,109 +1,52 @@
 <!DOCTYPE html>
 <html >
     <head>
-        <title>Papete</title>
-        <style>
-html
-{
-    min-width:400dip;
-    max-width:100%;         /* 100% of screen width */
-    min-height:200dip;
-    max-height:100%;        /* 100% of screen height */
-    overflow:hidden;
-    background:gold;
-}
-body{
-    size:*;
-    flow:grid(1 1,
-        2 2,
-        2 2);
-
-}
-#header {
-    flow:horizontal;
-    width: *;
-    height:10%;
-    background-color: lightblue;
-    display:block;
-}
-#meio{
-    size:*;
-    margin:0; 
-    padding:0;
-    display:block;
-}
-textarea{
-    display:block;
-    width:*;
-    height:6em;
-}
-
-#btnJogar{
-    box-shadow:inset 0px 1px 0px 0px #caefab;
-    background:linear-gradient(to bottom, #77d42a 5%, #5cb811 100%);
-    background-color:#77d42a;
-    border-radius:6px;
-    border:1px solid #268a16;
-    display:inline-block;
-    cursor:pointer;
-    color:#306108;
-    font-family:Arial;
-    font-size:15px;
-    font-weight:bold;
-    padding:6px 24px;
-    text-decoration:none;
-    text-shadow:0px 1px 0px #aade7c;
-
-    position:absolute;
-    transition: .5s ease;
-    top: 50%;
-    left: 40%;
-}
-#btnJogar:active {
-    color: lightblue;
-    background:linear-gradient(to bottom, blue , darkblue);
-    background-color: blue;
-}
-        </style>
+        <link rel="stylesheet" type="text/css" href="style.css">
         <script type="text/tiscript">
             var requisitou = false;
             function self.ready() {
             view.isResizeable = false;
-            view.windowCaption = "PaPeTe";
+            view.windowCaption = "PaPeTe"; //Colocar o nick dele
               view.move(500px,250px,500px,400px);
               }
-            $(#btnJogar).on("click", function() { //Quando clicar no botao
-            if (requisitou != true){
-                requisitou = true
-                view.toGo("aoJogo");
-                }else{
-            view.msgbox(#information, "Você já está aguardando um oponente");
-                }
-            });
             function mudarCaixaTexto(msg){
             var texto = self#info;
             texto.value = msg;
             }
             var root = view.root
-            root.salaDeEspera = function(msg){
-            mudarCaixaTexto(msg)
+            root.mensagem = function(msg){
+            mudarCaixaTexto(msg);
             }
             root.startJogo = function(opon){
-               mudarCaixaTexto(opon)
+               mudarCaixaTexto(opon);
+                $(#btns).load("/home/cire/PapeteGo/src/github.com/Gueirc/PapeteGo/cliente/noJogo.htm");
+               return opon
+            }
+            root.voltarLobby = function(resultado){
+                requisitou = false;
+                mudarCaixaTexto(resultado);
+                $(#btns).load("/home/cire/PapeteGo/src/github.com/Gueirc/PapeteGo/cliente/entrada.htm");
+            }
+
+            function self.closing(reason){
+                if (reason == #by-chrome){
+                    view.toGo("fechar");
+                    }
+            
             }
         </script>
     </head>
+    <body>
 
-    <div #header>
-        PaPeTe - Clique em jogar para jogar, converse com seus adversários no chat
+    <div#header>
+        <center> <b> PaPeTe </b> </center>
     </div>
-    <div #meio>
+    <div#meio>
 
         <textarea readonly id="info"> Clique em jogar para jogar
         </textarea>
 
-
-        <button id="btnJogar">Jogar</button>
+        <frame id="btns" src="entrada.htm" name="btns" />
     </div>
 
     </body>
