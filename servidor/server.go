@@ -16,11 +16,12 @@ type Jogador struct {
 
 //enviar para o chat de jgdr a mensagem tex de enviador
 func sendChat(jgdr *Jogador, enviador string, tex []string) {
-	enviar := ""
-	for i := 0; i < len(tex); i++ {
-		enviar = enviar + " " + tex[i]
-	}
-	jgdr.tcp_conn.Send("/chat " + enviador + enviar + "\n")
+	//enviar := ""
+	//for i := 0; i < len(tex); i++ {
+	//	enviar = enviar + " " + tex[i]
+	//}
+	//jgdr.tcp_conn.Send("/chat " + enviador + enviar + " \n")
+	jgdr.tcp_conn.Send("/chat " + enviador + " " + strings.Join(tex, " ") + " \n")
 }
 
 func main() {
