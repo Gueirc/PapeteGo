@@ -122,16 +122,19 @@ func handlerCon(canal chan string, w *window.Window) {
 				log.Println("Esperando")
 				msg, _ := bufio.NewReader(conn).ReadString('\n')
 				textoDiv := strings.Split(msg, " ")
+				for i := 0; i < len(textoDiv); i++ {
+					textoDiv[i] = strings.TrimSpace(textoDiv[i])
+				}
 				log.Println(msg)
 				switch textoDiv[1] {
 				case "/server":
 					//Ignora o /chat e o enviador
 					texto := strings.Join(textoDiv[2:], " ")
-					root.CallMethod("mensagem", sciter.NewValue(texto))
+					uiMens(texto, w)
 				case "/serverJogo":
 					switch textoDiv[2] {
 					case "/oponente":
-						oponente := textoDiv[4] // nome do oponente
+						oponente := textoDiv[3] // nome do oponente
 						log.Println("	" + oponente)
 						msg := "Seu oponente é: " + oponente
 						retorno, err := root.CallMethod("startJogo",
@@ -151,19 +154,31 @@ func handlerCon(canal chan string, w *window.Window) {
 							voltou = true
 						}
 					case "/escolhido":
-						root.CallMethod("mensagem",
-							sciter.NewValue("Você escolheu..."))
-
+						log.Println("passou pra escolhido")
+						uiMens("Você escolheu...", w)
 					case "/oescolhido":
-						root.CallMethod("mensagem",
-							sciter.NewValue("Seu oponente escolheu..."))
-
+						log.Println("passou pra oescolhido")
+						uiMens("Seu oponente escolheu...", w)
 					case "/resultado":
+						log.Println(textoDiv)
+						log.Println(textoDiv[3])
+						log.Println(textoDiv[4])
+						msg := "O jogo acabou. Você jogou " + ctos(textoDiv[3]) + " e seu oponente jogou " + ctos(textoDiv[4]) + "."
+						log.Println(textoDiv[5])
 						if textoDiv[5] == "/ganhou" {
+							msg = msg + " Você ganhou"
 						} else if textoDiv[5] == "/perdeu" {
-
+							msg = msg + " Você perdeu"
 						} else if textoDiv[5] == "/empatou" {
-
+							msg = msg + " Você empatou"
+						}
+						retorno, err := root.CallMethod("voltarLobby",
+							sciter.NewValue(msg))
+						if err != nil {
+							log.Panic("method call voltarLobby failed,", err)
+						} else {
+							log.Println("method call voltarLobby successfulyy ", retorno)
+							voltou = true
 						}
 					}
 
@@ -171,6 +186,38 @@ func handlerCon(canal chan string, w *window.Window) {
 			}
 		}
 
+	}
+
+}
+
+func ctos(c string) string {
+	if c == "/papel" {
+		return "papel"
+	} else if c == "/pedra" {
+		return "pedra"
+	} else if c == "/tesoura" {
+		return "tesoura"
+	} else {
+		return "NAO"
+	}
+
+}
+
+func uiMens(mens string, w *window.Window) {
+	root, err := w.GetRootElement()
+	if err != nil {
+		log.Fatal("get root element failed: ", err.Error())
+	}
+	for {
+		//time.Sleep(1 * time.Millisecond)
+		retorno, err := root.CallMethod("mensagem",
+			sciter.NewValue(mens))
+		if err != nil {
+			log.Println("method call startJogo  failed,", err)
+		} else {
+			log.Println("method call startJogo successfulyy ", retorno)
+			break
+		}
 	}
 
 }
