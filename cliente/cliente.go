@@ -7,8 +7,10 @@ import (
 	"net"
 	"strings"
 
-	"github.com/sciter-sdk/go-sciter"
-	"github.com/sciter-sdk/go-sciter/window"
+	tool "github.com/GeertJohan/go.rice"
+	sciter "github.com/sciter-sdk/go-sciter"
+	rice "github.com/sciter-sdk/go-sciter/rice"
+	window "github.com/sciter-sdk/go-sciter/window"
 )
 
 var chJogo = make(chan string)
@@ -81,7 +83,15 @@ func main() {
 	if err != nil {
 		log.Fatal("Criar janela erro: ", err)
 	}
-	w.LoadFile("/home/cire/PapeteGo/src/github.com/Gueirc/PapeteGo/cliente/main.htm")
+	rice.HandleDataLoad(w.Sciter)
+
+	tool.MustFindBox("htmcss")
+
+	err = w.LoadFile("rice://htmcss/main.htm")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	w.SetTitle("Login")
 	defFunc(w)
 	go handlerCon(chJogo, w)
