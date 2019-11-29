@@ -3,7 +3,12 @@
     <head>
         <link rel="stylesheet" type="text/css" href="style.css">
 <script type="text/tiscript">
+    var escolheu = false;
     event click $(#btnPapel) {
+    if (escolheu != false){
+        return false;
+        }
+        escolheu = true;
     view.toGo("papel");
       //if(var element = self.select("#btnPapel"))
       if(var element = self.select("#btnPedra"))
@@ -12,6 +17,10 @@
          element.attributes["style"] = "opacity: 0.6;";
          }
     event click $(#btnPedra) {
+    if (escolheu != false){
+        return false;
+        }
+        escolheu = true;
     view.toGo("pedra");
       if(var element = self.select("#btnPapel"))
          element.attributes["style"] = "opacity: 0.6;";
@@ -20,11 +29,17 @@
          element.attributes["style"] = "opacity: 0.6;";
          }
     event click $(#btnTesoura) {
+    if (escolheu != false){
+        return false;
+        }
+        escolheu = true;
     view.toGo("tesoura");
       if(var element = self.select("#btnPapel"))
          element.attributes["style"] = "opacity: 0.6;";
       if(var element = self.select("#btnPedra"))
          element.attributes["style"] = "opacity: 0.6;";
+         //element.attributes["style"] = "disabled: c.6;";
+
       //if(var element = self.select("#btnTesoura"))
          }
 </script>
