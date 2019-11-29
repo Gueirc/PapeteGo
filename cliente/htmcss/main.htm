@@ -1,6 +1,6 @@
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="rice://htmcss/style.css">
 
         <script type="text/tiscript">
         var nick
@@ -9,7 +9,7 @@
         if (logado != true){
             logado = true
             view.msgbox(#information, "Você foi Conectado");
-            $(#content_page).load("/home/cire/PapeteGo/src/github.com/Gueirc/PapeteGo/cliente/lobby.htm");
+            $(#content_page).load("rice://htmcss/lobby.htm");
             }else{
             view.msgbox(#warning, "Já Conectado");
             }
@@ -18,7 +18,7 @@
 
     </head>
     <body>
-        <frame id="content_page" src="login.htm" name="content_page" />
+        <frame id="content_page" src="rice://htmcss/login.htm" name="content_page" />
     </body>
 </html>
 

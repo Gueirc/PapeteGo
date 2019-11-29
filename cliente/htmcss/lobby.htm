@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html >
     <head>
-        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="rice://htmcss/style.css">
         <script type="text/tiscript">
             var requisitou = false;
             function self.ready() {
@@ -20,13 +20,13 @@
             }
             root.startJogo = function(opon){
                mudarCaixaTexto(opon);
-                $(#btns).load("/home/cire/PapeteGo/src/github.com/Gueirc/PapeteGo/cliente/noJogo.htm");
+                $(#btns).load("rice://htmcss/noJogo.htm");
                return opon
             }
             root.voltarLobby = function(resultado){
                 requisitou = false;
                 mudarCaixaTexto(resultado);
-                $(#btns).load("/home/cire/PapeteGo/src/github.com/Gueirc/PapeteGo/cliente/entrada.htm");
+                $(#btns).load("rice://htmcss/entrada.htm");
             }
 
             function self.closing(reason){
@@ -46,7 +46,7 @@
 
         <div readonly id="info"> Clique em jogar para jogar </div>
 
-        <frame id="btns" src="entrada.htm" name="btns" />
+        <frame id="btns" src="rice://htmcss/entrada.htm" name="btns" />
     </div>
 
     </body>
