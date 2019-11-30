@@ -86,6 +86,10 @@ func main() {
 	rice.HandleDataLoad(w.Sciter)
 
 	tool.MustFindBox("htmcss")
+	_, err = tool.FindBox("icon.png")
+	if err != nil {
+		log.Println("Não foi possível carregar o ícone")
+	}
 
 	err = w.LoadFile("rice://htmcss/main.htm")
 	if err != nil {
