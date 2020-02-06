@@ -1,3 +1,4 @@
+[![Papete.png](https://i.postimg.cc/0jQ5zgnn/Papete.png)](https://postimg.cc/Hcq1Nhf8)
 # PapeteGo
 Um jogo multiplayer de pedra papel tesoura feito usando a linguagem go e a engine sciter.
 
